@@ -21,7 +21,7 @@ void Team::standby_players() {
         member->put_to_sleep();
       }
 
-      while (bucket.load() < 50 && is_game_started->load()) {
+      while (bucket < 50 && is_game_started->load()) {
         std::cout << *this << *member << " is playing" << std::endl;
 
         member->fetch_water();
@@ -30,11 +30,11 @@ void Team::standby_players() {
         members.at((member->get_id() + 1) % members.size())->wake_up();
         member->put_to_sleep();
       }
+
+      lock.lock();
       if (!is_game_started->load()) {
         return;
       }
-      lock.lock();
-
       std::cout << *this << *member << " is done" << std::endl;
       std::cout << *this << " has Won" << std::endl;
       std::cout << std::endl;
