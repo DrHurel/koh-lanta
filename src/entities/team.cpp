@@ -1,19 +1,47 @@
 #include "entities/team.h"
 
-void Team::standby_players() {
-  for (auto &member : members) {
-    std::jthread member_thread([&member, this]() {
-      mtx.lock();
-      while (!is_game_started->load()) {
-        cv->wait(mtx, [this] {
-          return is_game_started->load();
-        }); // Add condition argument to wait
-      }
-      mtx.unlock();
+#include <iostream>
 
-      member.fetch_water();
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-      fillBucket(member.get_water_bucket());
+void Team::standby_players() {
+
+  std::cout << "standby..." << members.size() << std::endl;
+  for (const auto &member : members) {
+    std::cout << *member << " is standing by" << std::endl;
+
+    threads.emplace_back([&member, this]() {
+      std::unique_lock lock(mtx);
+      while (!is_game_started->load()) {
+
+        cv->wait(lock, [this]() { return is_game_started->load(); });
+      }
+      lock.unlock();
+
+      if (member->get_id() != 0) {
+        std::cout << *this << *member << " is sleeping" << std::endl;
+        member->put_to_sleep();
+      }
+
+      while (bucket.load() < 50 && is_game_started->load()) {
+        std::cout << *this << *member << " is playing" << std::endl;
+
+        member->fetch_water();
+        fillBucket(member->get_water_bucket());
+
+        members.at((member->get_id() + 1) % members.size())->wake_up();
+        member->put_to_sleep();
+      }
+      if (!is_game_started->load()) {
+        return;
+      }
+      lock.lock();
+
+      std::cout << *this << *member << " is done" << std::endl;
+      std::cout << *this << " has Won" << std::endl;
+      std::cout << std::endl;
+      std ::cout << "Game Over" << std::endl;
+      is_game_started->store(false);
+      lock.unlock();
+      return;
     });
   }
 }

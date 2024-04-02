@@ -4,7 +4,7 @@
 
 #include <random> // Include the <random> header
 
-Player::Player(const std::string &name) : name(name) {}
+Player::Player(const int id, const std::string &name) : id(id), name(name) {}
 
 void Player::randomevent() {
   std::this_thread::sleep_for(std::chrono::seconds(1));

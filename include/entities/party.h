@@ -6,10 +6,12 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 class Party {
 private:
-  std::map<std::string, Team> teams;
+  std::map<std::string, Team, std::less<>> teams;
   std::shared_ptr<std::condition_variable> cv =
       std::make_shared<std::condition_variable>();
   std::shared_ptr<std::atomic<bool>> is_game_started =
@@ -18,10 +20,11 @@ private:
 public:
   Party();
 
-  void add_team(const std::string &name, const std::vector<Player> &members) {
+  void add_team(const std::string &name,
+                const std::vector<std::shared_ptr<Player>> &members) {
 
     if (auto [_, is_created] =
-            teams.try_emplace(name, members, cv, is_game_started);
+            teams.try_emplace(name, members, cv, is_game_started, name);
         !is_created) {
       std::cerr << "Team " << name << " already exists!" << std::endl;
     }
@@ -35,9 +38,13 @@ public:
   }
 
   // notify all the players that the game has started
-  void start_game() const {
+  void start_game() {
     is_game_started->store(true);
+    std::cout << "Game started!" << std::endl;
     cv->notify_all();
+    for (auto &[_, team] : teams) {
+      team.join();
+    }
   }
 };
 
