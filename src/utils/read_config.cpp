@@ -1,14 +1,15 @@
 #include "entities/party.h"
 #include "player.h"
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include <vector>
 
 struct fail_to_open_file : public std::exception {};
 
 Party read_config(const std::string &config_path) {
 
+  std::cout << "Reading config file" << std::endl;
   std::ifstream file(config_path);
 
   if (!file.is_open()) {
