@@ -8,6 +8,7 @@
 #include <mutex>
 #include <ostream>
 #include <string>
+
 // Define the Player class
 
 class Player {
@@ -15,7 +16,7 @@ public:
   // Constructor
   explicit Player(const int id, const std::string &name);
 
-  void fetch_water();
+  void fetch_water(const int travel_time, const int random_event_occurenc);
   int get_water_bucket() const;
   [[maybe_unused]] void empty_bucket();
 
@@ -47,7 +48,7 @@ private:
 
   /// event that can happen to the player when he goes to fill the bamboo
   /// bucket, will decrease the amount of water in the bucket
-  void randomevent();
+  void randomevent(const int travel_time);
 };
 
 #endif // PLAYER_H

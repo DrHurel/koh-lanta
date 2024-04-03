@@ -9,6 +9,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+
 class Team {
 private:
   // mutex
@@ -24,6 +25,9 @@ private:
   /// amount of water that was actually added
   int fillBucket(int amount) { return bucket += amount; }
 
+  void routine(int bucket_size, int travel_time, int random_event_occurence,
+               std::shared_ptr<Player> member);
+
 public:
   Team(const std::vector<std::shared_ptr<Player>> &members,
        std::shared_ptr<std::condition_variable> cv,
@@ -32,8 +36,8 @@ public:
       : cv(cv), members(members), name(name),
         is_game_started(is_game_started){};
 
-  void standby_players();
-
+  void standby_players(int travel_time, int random_event_occurence,
+                       int bucket_size);
   void join() {
     for (auto &thread : threads) {
       thread.join();

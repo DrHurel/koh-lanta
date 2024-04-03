@@ -16,15 +16,25 @@ Party read_config(const std::string &config_path) {
   }
 
   std::string line;
-  auto party = Party();
+
+  std::getline(file, line);
+  // configuration des paramettre du jeu
+
+  std::istringstream config_line(line);
+  int travel_time;
+  int random_event_occurence;
+  int bucket_size;
+  config_line >> travel_time >> random_event_occurence >> bucket_size;
+  auto party = Party(travel_time, random_event_occurence, bucket_size);
+
   while (std::getline(file, line)) {
-    std::istringstream iss(line);
+    std::istringstream team_line(line);
     std::string team_name;
-    iss >> team_name;
+    team_line >> team_name;
     std::string member;
     std::vector<std::shared_ptr<Player>> members;
     int id = 0;
-    while (iss >> member) {
+    while (team_line >> member) {
       members.emplace_back(std::make_shared<Player>(id, member));
       id++;
     }

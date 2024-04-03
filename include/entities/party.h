@@ -16,9 +16,19 @@ private:
       std::make_shared<std::condition_variable>();
   std::shared_ptr<std::atomic<bool>> is_game_started =
       std::make_shared<std::atomic<bool>>(false);
+  int bucket_size;
+  /// time it takes to travel from the start to the end in seconds
+  int travel_time;
+  /// number of seconds between each random event
+  int random_event_occurence = 1;
 
 public:
-  Party();
+  /// Constructor for the Party class
+  /// @param travel_time : time it takes to travel from the start to the end in
+  /// seconds
+  /// @param random_event_occurence : number of seconds between each random
+  /// event
+  Party(int travel_time, int random_event_occurence, int bucket_size);
 
   void add_team(const std::string &name,
                 const std::vector<std::shared_ptr<Player>> &members) {
@@ -32,7 +42,7 @@ public:
 
   void init_game() {
     for (auto &[name, team] : teams) {
-      team.standby_players();
+      team.standby_players(travel_time, random_event_occurence, bucket_size);
       std::cout << "Team " << name << " is ready!" << std::endl;
     }
   }
